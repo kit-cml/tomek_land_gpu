@@ -17,6 +17,7 @@ void param_t::init() {
     celltype = 0.0;
     dt = 0.005;
     conc = 99.0;
+    is_time_series = 0;
 
     snprintf(hill_file, sizeof(hill_file), "%s", "./drugs/bepridil/IC50_samples.csv");
     snprintf(cvar_file, sizeof(cvar_file), "%s", "./drugs/10000_pop.csv");
@@ -35,6 +36,7 @@ void param_t::show_val() {
     mpi_printf(0, "%s -- %lf\n", "Basic_Cycle_Length", bcl);
     mpi_printf(0, "%s -- %d\n", "GPU_Index", gpu_index);
     mpi_printf(0, "%s -- %hu\n", "Number_of_Pacing", pace_max);
+    mpi_printf(0, "%s -- %hu\n", "Is_Post_Processing", is_time_series);
     mpi_printf(0, "%s -- %hu\n", "Pace_Find_Steepest", find_steepest_start);
     mpi_printf(0, "%s -- %lf\n", "Time_Step", dt);
     mpi_printf(0, "%s -- %s\n", "Drug_Name", drug_name);

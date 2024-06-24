@@ -22,6 +22,7 @@ struct param_t {
     char cvar_file[1024];                ///< File name for conductance variability data
     char drug_name[100];                 ///< Name of the drug
     float conc;                          ///< Drug concentration
+    int is_time_series;
 
     /**
      * @brief Initialize parameters with default values
