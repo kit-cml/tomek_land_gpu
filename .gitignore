@@ -1,0 +1,14 @@
+*.i
+*.ii
+*.gpu
+*.ptx
+*.cubin
+*.fatbin
+.DS_Store
+bin/drug_sim
+*.o
+*.plt
+*.out
+bin/result/*/*.csv
+bin/result/*/*/*.csv
+bin/result/parse.ipynb

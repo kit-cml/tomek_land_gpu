@@ -1,0 +1,60 @@
+################################################################################
+#                            Simulation Configuration                          #
+################################################################################
+# This input file contains the configuration parameters for the drug simulation.
+# Each parameter is explained below with its expected value and purpose.
+################################################################################
+
+# Basic_Cycle_Length
+# The basic cycle length (BCL) for the pacing protocol, in milliseconds.
+# This parameter defines the interval between consecutive stimuli in the simulation.
+# Example: Basic_Cycle_Length = 2000
+Basic_Cycle_Length = 1000
+
+# Number_of_Pacing
+# The total number of pacing cycles to be applied during the simulation.
+# This parameter determines how many times the pacing stimulus is applied.
+# Example: Number_of_Pacing = 1000
+Number_of_Pacing = 300
+
+# Simulation_Mode
+# The mode of simulation to be performed.
+# 0: Full-pace
+# 1: Sample-based
+# Example: Simulation_Mode = 0
+Simulation_Mode = 0
+
+# Celltype
+# The type of cardiac cell model to be used in the simulation.
+# 0: Endocardial cells
+# 1: Epicardial cells
+# 2: M cells
+# Example: Celltype = 0
+Celltype = 0
+
+# Is_Dutta
+# Determines whether to use conductance scaling from Dutta et al. 2017.
+# 1: Enable Dutta conductance scaling
+# 0: Disable Dutta conductance scaling
+# Example: Is_Dutta = 1
+Is_Dutta = 1
+
+# Is_Post_Processing
+# Specifies whether to perform post-processing on the simulation results.
+# 0: Perform in silico simulation
+# 1: Perform post-processing on previously generated data
+# Example: Is_Post_Processing = 0
+Is_Post_Processing = 0
+
+# Use_Conductance_Variability
+# Indicates whether to read an additional file containing individual conductance variability data.
+# 1: Enable the use of conductance variability data
+# 0: Disable the use of conductance variability data
+# Example: Use_Conductance_Variability = 0
+Use_Conductance_Variability = 0
+
+# Pace_Find_Steepest
+# The timing to start searching for the steepest dV/dt repolarization (e.g., last 250 pacing cycles).
+# This parameter defines when to begin analyzing the steepest repolarization phase during pacing.
+# Example: Pace_Find_Steepest = 250
+Pace_Find_Steepest = 50
