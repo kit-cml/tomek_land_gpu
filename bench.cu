@@ -3,6 +3,8 @@
  * @brief Main entry point for the Drug Simulation using CUDA
  */
 
+#include <sys/stat.h>
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -54,6 +56,13 @@ int main(int argc, char **argv) {
     tic();
 
     if (p_param->is_time_series == 1 ) {
+
+        std::regex pattern("/([a-zA-Z0-9_\.]+)\.csv");
+        std::smatch match;
+        std::string fname = p_param->hill_file;
+        std::regex_search(fname, match, pattern);
+        
+        printf("%s\n", match[1].str().c_str());
 
         printf("Using cached initial state from previous result!!!! \n\n");
 
