@@ -51,16 +51,26 @@ __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_
     }
     else if (p_param->is_time_series == 1)
     {
-      kernel_DoDrugSim_single(d_ic50, d_cvar, d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES, d_ALGEBRAIC,
-                          time, states, out_dt, cai_result,
-                          ina, inal, 
-                          ical, ito,
-                          ikr, iks, 
-                          ik1,
-                          time_for_each_sample, dt_for_each_sample, thread_id, sample_size,
-                          temp_result, cipa_result,
-                          p_param
-                          );
+      // kernel_DoDrugSim_post(d_ic50, d_cvar, d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES, d_ALGEBRAIC,
+      //                     time, states, out_dt, cai_result,
+      //                     ina, inal, 
+      //                     ical, ito,
+      //                     ikr, iks, 
+      //                     ik1,
+      //                     time_for_each_sample, dt_for_each_sample, thread_id, sample_size,
+      //                     temp_result, cipa_result,
+      //                     p_param
+      //                     );
+
+      kernel_DoDrugSim_post(d_ic50, d_cvar, d_conc[thread_id], d_CONSTANTS, d_STATES, d_STATES_init, d_RATES, d_ALGEBRAIC,
+                                        d_mec_CONSTANTS, d_mec_STATES, d_mec_RATES,
+                                        d_mec_ALGEBRAIC, time, states, out_dt,
+                                        cai_result, ina, inal, ical, ito,
+                                        ikr, iks, ik1, tension, tcurr, dt,
+                                        sample_id, sample_size, temp_result,
+                                        cipa_result, p_param);
+
+
     }
 
 

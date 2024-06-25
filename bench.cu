@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 
     tic();
 
-    if (p_param->is_time_series == 1 /*&& exists(p_param->cache_file) == 1 <- still unstable*/) {
+    if (p_param->is_time_series == 1 ) {
 
         printf("Using cached initial state from previous result!!!! \n\n");
 
