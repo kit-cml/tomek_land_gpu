@@ -18,6 +18,7 @@ void param_t::init() {
     dt = 0.005;
     conc = 99.0;
     is_time_series = 0;
+    sampling_limit = 7000;
 
     snprintf(hill_file, sizeof(hill_file), "%s", "./drugs/bepridil/IC50_samples.csv");
     snprintf(cvar_file, sizeof(cvar_file), "%s", "./drugs/10000_pop.csv");

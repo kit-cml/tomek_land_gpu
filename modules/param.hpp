@@ -23,6 +23,7 @@ struct param_t {
     char drug_name[100];                 ///< Name of the drug
     float conc;                          ///< Drug concentration
     int is_time_series;
+    int sampling_limit;
 
     /**
      * @brief Initialize parameters with default values

@@ -198,7 +198,7 @@ int main(int argc, char **argv) {
         // initscr();
         // printf("[____________________________________________________________________________________________________]  0.00 %% \n");
 
-        kernel_DrugSimulation<<<block, thread>>>(d_ic50, d_cvar, d_conc, d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES, d_ALGEBRAIC,
+        kernel_DrugSimulation_postpro<<<block, thread>>>(d_ic50, d_cvar, d_conc, d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES, d_ALGEBRAIC,
                                                  d_mec_CONSTANTS, d_mec_STATES, d_mec_RATES, d_mec_ALGEBRAIC,
                                                  d_STATES_RESULT, d_all_states,
                                                  time, states, dt, cai_result,
