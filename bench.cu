@@ -4,6 +4,8 @@
  */
 
 #include <sys/stat.h>
+#include <regex>
+#include <string>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -56,153 +58,14 @@ int main(int argc, char **argv) {
     tic();
 
     if (p_param->is_time_series == 1 ) {
-
-        std::regex pattern("/([a-zA-Z0-9_\.]+)\.csv");
-        std::smatch match;
-        std::string fname = p_param->hill_file;
-        std::regex_search(fname, match, pattern);
-        
-        printf("%s\n", match[1].str().c_str());
-
-        printf("Using cached initial state from previous result!!!! \n\n");
-
-        const unsigned int datapoint_size = p_param->sampling_limit;
-        double *cache;
-        cache = (double *)malloc((num_of_states + 2) * sample_limit * sizeof(double));
-
-        double *d_ic50;
-        double *d_conc;
-        double *d_cvar;
-        double *d_ALGEBRAIC;
-        double *d_CONSTANTS;
-        double *d_RATES;
-        double *d_STATES;
-        double *d_STATES_cache;
-        double *d_mec_CONSTANTS, *d_mec_STATES, *d_mec_RATES, *d_mec_ALGEBRAIC;
-        // actually not used but for now, this is only for satisfiying the GPU regulator parameters
-        double *d_STATES_RESULT;
-        double *d_all_states;
-
-        double *time;
-        double *dt;
-        double *states;
-        double *ical;
-        double *inal;
-        double *cai_result;
-        double *ina;
-        double *ito;
-        double *ikr;
-        double *iks;
-        double *ik1;
-        double *tension;
-        cipa_t *temp_result, *cipa_result;
-
-        static const int CALCIUM_SCALING = 1000000;
-        static const int CURRENT_SCALING = 1000;
-
-        int num_of_constants = 146;
-        int num_of_states = 42;
-        int num_of_algebraic = 199;
-        int num_of_rates = 42;
-
-        // snprintf(buffer, sizeof(buffer),
-        //   "./drugs/bepridil/IC50_samples.csv"
-        //   // "./drugs/bepridil/IC50_optimal.csv"
-        //   // "./IC50_samples.csv"
-        //   );
-
-        int sample_size = get_IC50_data_from_file(p_param->hill_file, ic50, conc, drug_name);
-        if (sample_size == 0)
-            printf("Something problem with the IC50 file!\n");
-        // else if(sample_size > 2000)
-        //     printf("Too much input! Maximum sample data is 2000!\n");
-        printf("Sample size: %d\n", sample_size);
-        printf("Set GPU Number: %d\n", p_param->gpu_index);
-
-        cudaSetDevice(p_param->gpu_index);
-
-        if (p_param->is_cvar == true) {
-            int cvar_sample = get_cvar_data_from_file(p_param->cvar_file, sample_size, cvar);
-            printf("Reading: %d Conductance Variability samples\n", cvar_sample);
-        }
-
-        printf("preparing GPU memory space \n");
-
-        // char buffer_cvar[255];
-        // snprintf(buffer_cvar, sizeof(buffer_cvar),
-        // "./result/66_00.csv"
-        // // "./drugs/optimized_pop_10k.csv"
-        // );
         int cache_num = get_init_data_from_file(p_param->cache_file, cache);
         printf("Found cache for %d samples\n", cache_num);
-        // note to self:
-        // num of states+2 gave you at the very end of the file (pace number)
-        // the very beginning -> the core number
-        //   for (int z = 0; z <  num_of_states; z++) {printf("%lf\n", cache[z+1]);}
-        //   printf("\n");
-        //   for (int z = 0; z <  num_of_states; z++) {printf("%lf\n", cache[ 1*(num_of_states+2) + (z+2)]);}
-        //   printf("\n");
-        //   for (int z = 0; z <  num_of_states; z++) {printf("%lf\n", cache[ 2*(num_of_states+2) + (z+3)]);}
-        // return 0 ;
+        
+        printf("preparing GPU memory space \n");
+        prepingGPUMemoryPostpro(sample_size, d_ALGEBRAIC, d_CONSTANTS, d_RATES, d_STATES, d_STATES_cache, d_mec_ALGEBRAIC, d_mec_CONSTANTS,
+                     d_mec_RATES, d_mec_STATES, d_p_param, temp_result, cipa_result, d_STATES_RESULT, d_ic50, ic50,
+                     d_conc, conc, p_param);
 
-        cudaMalloc(&d_ALGEBRAIC, num_of_algebraic * sample_size * sizeof(double));
-        cudaMalloc(&d_CONSTANTS, num_of_constants * sample_size * sizeof(double));
-        cudaMalloc(&d_RATES, num_of_rates * sample_size * sizeof(double));
-        cudaMalloc(&d_STATES, num_of_states * sample_size * sizeof(double));
-        cudaMalloc(&d_STATES_cache, (num_of_states + 2) * sample_size * sizeof(double));
-        cudaMalloc(&d_mec_ALGEBRAIC, 24 * sample_size * sizeof(double));
-        cudaMalloc(&d_mec_CONSTANTS, 29 * sample_size * sizeof(double));
-        cudaMalloc(&d_mec_RATES, 7 * sample_size * sizeof(double));
-        cudaMalloc(&d_mec_STATES, 7 * sample_size * sizeof(double));
-
-        cudaMalloc(&d_p_param, sizeof(param_t));
-
-        // prep for 1 cycle plus a bit (7000 * sample_size)
-        cudaMalloc(&temp_result, sample_size * sizeof(cipa_t));
-        cudaMalloc(&cipa_result, sample_size * sizeof(cipa_t));
-
-        cudaMalloc(&time, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&dt, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&states, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&ical, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&inal, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&cai_result, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&ina, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&ito, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&ikr, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&iks, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&ik1, sample_size * datapoint_size * sizeof(double));
-        cudaMalloc(&tension, sample_size * datapoint_size * sizeof(double));
-        // cudaMalloc(&d_STATES_RESULT, (num_of_states+1) * sample_size * sizeof(double));
-        // cudaMalloc(&d_all_states, num_of_states * sample_size * p_param->find_steepest_start * sizeof(double));
-
-        printf("Copying sample files to GPU memory space \n");
-        cudaMalloc(&d_ic50, sample_size * 14 * sizeof(double));
-        cudaMalloc(&d_cvar, sample_size * 18 * sizeof(double));
-        cudaMalloc(&d_conc, sample_size * sizeof(double));
-        cudaMemcpy(d_STATES_cache, cache, (num_of_states + 2) * sample_size * sizeof(double), cudaMemcpyHostToDevice);
-        cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice);
-        cudaMemcpy(d_cvar, cvar, sample_size * 18 * sizeof(double), cudaMemcpyHostToDevice);
-        cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice);
-        cudaMemcpy(d_p_param, p_param, sizeof(param_t), cudaMemcpyHostToDevice);
-
-        // // Get the maximum number of active blocks per multiprocessor
-        // cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocks, do_drug_sim_analytical, threadsPerBlock);
-
-        // // Calculate the total number of blocks
-        // int numTotalBlocks = numBlocks * cudaDeviceGetMultiprocessorCount();
-
-        tic();
-        printf("Timer started, doing simulation.... \n\n\nGPU Usage at this moment: \n");
-        int thread = 32;
-        int block = (sample_size + thread - 1) / thread;
-        // int block = (sample_size + thread - 1) / thread;
-        if (gpu_check(15 * sample_size * sizeof(double) + sizeof(param_t)) == 1) {
-            printf("GPU memory insufficient!\n");
-            return 0;
-        }
-        printf("Sample size: %d\n", sample_size);
-        cudaSetDevice(p_param->gpu_index);
         printf("\n   Configuration: \n\n\tblock\t||\tthread\n---------------------------------------\n  \t%d\t||\t%d\n\n\n", block, thread);
         // initscr();
         // printf("[____________________________________________________________________________________________________]  0.00 %% \n");
@@ -222,6 +85,7 @@ int main(int argc, char **argv) {
         // endwin();
 
         cudaDeviceSynchronize();
+        // checked till here
 
         printf("allocating memory for computation result in the CPU, malloc style \n");
         double *h_states, *h_time, *h_dt, *h_ical, *h_inal, *h_cai_result, *h_ina, *h_ito, *h_ikr, *h_iks, *h_ik1, *h_tension;
