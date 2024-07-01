@@ -448,7 +448,7 @@
  * @param offset Offset for accessing specific elements in arrays.
  */
 __device__ void ___initConsts(double *CONSTANTS, double *STATES, double type, double bcl, int offset) {
-    CONSTANTS[(offset * num_of_constants) + celltype] = type;
+    CONSTANTS[(offset * ORd_num_of_constants) + celltype] = type;
     CONSTANTS[(offset * ORd_num_of_constants) + nao] = 140;
     CONSTANTS[(offset * ORd_num_of_constants) + cao] = 1.8;
     CONSTANTS[(offset * ORd_num_of_constants) + ko] = 5.4;
