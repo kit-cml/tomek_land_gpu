@@ -91,6 +91,8 @@ void edison_assign_params(int argc, char *argv[], param_t *p_param)
       strncpy(p_param->hill_file, argv[idx + 1], sizeof(p_param->hill_file));
     // else if (!strcasecmp(argv[idx], "-cvar_file"))
     //   strncpy(p_param->hill_file, argv[idx + 2], sizeof(p_param->cvar_file));
+    else if (!strcasecmp(argv[idx], "-cache_file"))
+      strncpy(p_param->hill_file, argv[idx + 1], sizeof(p_param->cache_file));
   }
 
   fp_inputdeck = fopen(file_name, "r");

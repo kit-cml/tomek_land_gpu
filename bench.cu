@@ -58,19 +58,26 @@ int main(int argc, char **argv) {
     tic();
 
     if (p_param->is_time_series == 1 ) {
+        double* cache = (double *)malloc((ORd_num_of_states+2) * sample_limit * sizeof(double)); // array for in silico results
         int cache_num = get_init_data_from_file(p_param->cache_file, cache);
         printf("Found cache for %d samples\n", cache_num);
         
         printf("preparing GPU memory space \n");
         prepingGPUMemoryPostpro(sample_size, d_ALGEBRAIC, d_CONSTANTS, d_RATES, d_STATES, d_STATES_cache, d_mec_ALGEBRAIC, d_mec_CONSTANTS,
                      d_mec_RATES, d_mec_STATES, d_p_param, temp_result, cipa_result, d_STATES_RESULT, d_ic50, ic50,
-                     d_conc, conc, p_param);
+                     d_conc, conc, p_param, cache);
 
-        printf("\n   Configuration: \n\n\tblock\t||\tthread\n---------------------------------------\n  \t%d\t||\t%d\n\n\n", block, thread);
+        printf("Timer started, doing simulation.... \n\n\nGPU Usage at this moment: \n");
+            if (gpu_check(15 * sample_size * datapoint_size * sizeof(double) + sizeof(param_t)) == 1) {
+                printf("GPU memory insufficient!\n");
+                return 1;
+            }
+
+        printf("\n   Configuration: \n\n\tblock\t||\tthread\n---------------------------------------\n  \t%d\t||\t%d\n\n\n", blocksPerGrid, threadsPerBlock);
         // initscr();
         // printf("[____________________________________________________________________________________________________]  0.00 %% \n");
 
-        kernel_DrugSimulation_postpro<<<block, thread>>>(d_ic50, d_cvar, d_conc, d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES, d_ALGEBRAIC,
+        kernel_DrugSimulation_postpro<<<blocksPerGrid, threadsPerBlock>>>(d_ic50, d_cvar, d_conc, d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES, d_ALGEBRAIC,
                                                  d_mec_CONSTANTS, d_mec_STATES, d_mec_RATES, d_mec_ALGEBRAIC,
                                                  d_STATES_RESULT, d_all_states,
                                                  time, states, dt, cai_result,
@@ -81,8 +88,6 @@ int main(int argc, char **argv) {
                                                  sample_size,
                                                  temp_result, cipa_result,
                                                  d_p_param);
-        // block per grid, threads per block
-        // endwin();
 
         cudaDeviceSynchronize();
         // checked till here

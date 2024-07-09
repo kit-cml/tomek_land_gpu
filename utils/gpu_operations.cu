@@ -29,8 +29,9 @@
  */
 void prepingGPUMemory(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANTS, double *&d_RATES, double *&d_STATES,
                       double *&d_mec_ALGEBRAIC, double *&d_mec_CONSTANTS, double *&d_mec_RATES, double *&d_mec_STATES,
-                      param_t *&d_p_param, cipa_t *&temp_result, cipa_t *&cipa_result, double *&d_STATES_RESULT,
-                      double *&d_ic50, double *ic50, double *&d_conc, double *conc, param_t *p_param) {
+                      param_t *&d_p_param, cipa_t *&temp_result, cipa_t *&cipa_result, double *&d_STATES_RESULT, double *&d_ic50, 
+                      
+                      double *ic50, double *&d_conc, double *conc, param_t *p_param) {
     printf("preparing GPU memory space \n");
 
     // Allocate memory on the device
@@ -60,8 +61,9 @@ void prepingGPUMemory(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANT
 
 void prepingGPUMemoryPostpro(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANTS, double *&d_RATES, double *&d_STATES, double *d_STATES_cache,
                       double *&d_mec_ALGEBRAIC, double *&d_mec_CONSTANTS, double *&d_mec_RATES, double *&d_mec_STATES,
-                      param_t *&d_p_param, cipa_t *&temp_result, cipa_t *&cipa_result, double *&d_STATES_RESULT,
-                      double *&d_ic50, double *ic50, double *&d_conc, double *conc, param_t *p_param) {
+                      param_t *&d_p_param, cipa_t *&temp_result, cipa_t *&cipa_result, double *&d_STATES_RESULT, double *&d_ic50, 
+                     
+                      double *ic50, double *&d_conc, double *conc, param_t *p_param, double *cache) {
     printf("preparing GPU memory space \n");
 
     // Allocate memory on the device

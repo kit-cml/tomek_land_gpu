@@ -46,4 +46,6 @@ char *get_drug_name(const char filename[1024]);
 void write_results_to_file(const char *base_dir, const char *drug_name, double *h_states, cipa_t *h_cipa_result,
                            int sample_size, int ORd_num_of_states);
 
+int get_init_data_from_file(const char* file_name, double *init_states);
+
 #endif  // FILE_OPERATIONS_HPP
