@@ -121,7 +121,7 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
 
     // Simulation variables
     bool is_peak = false;
-    tcurr[sample_id] = 0.000001;
+    tcurr[sample_id] = 0.0;
     dt[sample_id] = p_param->dt;
     double max_time_step = 0.1, time_point = 25.0;
     double dt_set;
@@ -300,7 +300,7 @@ __device__ void kernel_DoDrugSim_post(double *d_ic50, double *d_cvar, double d_c
     bool is_peak = false;
     // to search max dvmdt repol
 
-    tcurr[sample_id] = 0.000001;
+    tcurr[sample_id] = 0.0;
     dt[sample_id] = p_param->dt;
     double tmax;
     double max_time_step = 1.0, time_point = 25.0;
