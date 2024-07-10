@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     char *drug_name = get_drug_name(p_param->hill_file);
     double *d_ic50, *d_conc, *d_cvar, *d_ALGEBRAIC, *d_CONSTANTS, *d_RATES, *d_STATES, *d_STATES_RESULT, *d_STATES_init;
     double *d_mec_ALGEBRAIC, *d_mec_CONSTANTS, *d_mec_RATES, *d_mec_STATES;
-    double *time, *dt, *states, *ical, *inal, *cai_result, *ina, *ito, *ikr, *iks, *ik1;
+    double *time, *dt, *states, *ical, *inal, *cai_result, *ina, *ito, *ikr, *iks, *ik1, *tension;
     cipa_t *temp_result, *cipa_result;
 
     int sample_size = get_IC50_data_from_file(p_param->hill_file, ic50, conc);
@@ -59,6 +59,9 @@ int main(int argc, char **argv) {
 
     if (p_param->is_time_series == 1 ) {
         double* cache = (double *)malloc((ORd_num_of_states+2) * sample_limit * sizeof(double)); // array for in silico results
+        double *d_STATES_cache;
+        double *d_all_states;
+
         int cache_num = get_init_data_from_file(p_param->cache_file, cache);
         printf("Found cache for %d samples\n", cache_num);
         
@@ -178,8 +181,9 @@ int main(int argc, char **argv) {
             char conc_str[ENOUGH];
             char filename[500] = "./result/post_";
             sprintf(sample_str, "%d", sample_id);
-            //sprintf(conc_str, "%.2f", conc[sample_id]);
-            strcat(filename, match[1].str().c_str());
+            sprintf(conc_str, "%.2f", conc[sample_id]);
+            // strcat(filename, match[1].str().c_str());
+            strcat(filename,conc_str);
             strcat(filename, "/");
             if (folder_created == false) {
                 check = mkdir(filename, 0777);
@@ -222,12 +226,18 @@ int main(int argc, char **argv) {
 
         printf("writing each biomarkers value... \n");
         // sample loop
-        // char conc_str[ENOUGH];
+        char conc_str[ENOUGH];
         char filename[500] = "./result/post_";
         // sprintf(sample_str, "%d", sample_id);
         // sprintf(conc_str, "%.2f", conc[sample_id]);
-        strcat(filename, match[1].str().c_str());
-        strcat(filename, "/");
+
+        // strcat(filename, match[1].str().c_str());
+        // strcat(filename, "/");
+
+        // sprintf(conc_str, "%.2f", CONC);
+        strcat(filename,conc_str);
+        strcat(filename,"/");
+
         // printf("creating %s... \n", filename);
         if (folder_created == false) {
             check = mkdir(filename, 0777);
