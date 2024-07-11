@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     tic();
 
     if (p_param->is_time_series == 1 ) {
-        printf("Post Processing from Previous Result \n");
+        printf("\nPost Processing from Previous Result \n");
         double* cache = (double *)malloc((ORd_num_of_states+2) * sample_limit * sizeof(double)); // array for in silico results
         double *d_STATES_cache;
         double *d_all_states;
@@ -66,10 +66,10 @@ int main(int argc, char **argv) {
         int cache_num = get_init_data_from_file(p_param->cache_file, cache);
         printf("Found cache for %d samples\n", cache_num);
         
-        printf("preparing GPU memory space \n");
         prepingGPUMemoryPostpro(sample_size, d_ALGEBRAIC, d_CONSTANTS, d_RATES, d_STATES, d_STATES_cache, d_mec_ALGEBRAIC, d_mec_CONSTANTS,
                      d_mec_RATES, d_mec_STATES, d_p_param, temp_result, cipa_result, d_STATES_RESULT, d_ic50, ic50,
-                     d_conc, conc, p_param, cache);
+                     d_conc, conc, p_param, cache,
+                     time, dt, states, ical, inal, cai_result, ina, ito, ikr, iks, ik1, tension);
 
         printf("Timer started, doing simulation.... \n\n\nGPU Usage at this moment: \n");
             if (gpu_check(15 * sample_size * datapoint_size * sizeof(double) + sizeof(param_t)) == 1) {

@@ -63,7 +63,8 @@ void prepingGPUMemoryPostpro(int sample_size, double *&d_ALGEBRAIC, double *&d_C
                       double *&d_mec_ALGEBRAIC, double *&d_mec_CONSTANTS, double *&d_mec_RATES, double *&d_mec_STATES,
                       param_t *&d_p_param, cipa_t *&temp_result, cipa_t *&cipa_result, double *&d_STATES_RESULT, double *&d_ic50, 
                      
-                      double *ic50, double *&d_conc, double *conc, param_t *p_param, double *cache) {
+                      double *ic50, double *&d_conc, double *conc, param_t *p_param, double *cache,
+                      double *time, double *dt, double *states, double *ical, double *inal, double *cai_result, double *ina, double *ito, double *ikr, double *iks, double *ik1, double *tension) {
     printf("preparing GPU memory space \n");
 
     // Allocate memory on the device
@@ -82,6 +83,19 @@ void prepingGPUMemoryPostpro(int sample_size, double *&d_ALGEBRAIC, double *&d_C
     cudaMalloc(&temp_result, sample_size * sizeof(cipa_t));
     cudaMalloc(&cipa_result, sample_size * sizeof(cipa_t));
     cudaMalloc(&d_STATES_RESULT, ORd_num_of_states * sample_size * sizeof(double)); // check for wat later
+
+        cudaMalloc(&time, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&dt, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&states, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&ical, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&inal, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&cai_result, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&ina, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&ito, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&ikr, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&iks, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&ik1, sample_size * datapoint_size * sizeof(double));
+        cudaMalloc(&tension, sample_size * datapoint_size * sizeof(double));
 
    printf("Copying sample files to GPU memory space \n");
    cudaMalloc(&d_ic50, sample_size * 14 * sizeof(double));

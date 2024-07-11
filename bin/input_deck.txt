@@ -15,7 +15,7 @@ Basic_Cycle_Length = 1000
 # The total number of pacing cycles to be applied during the simulation.
 # This parameter determines how many times the pacing stimulus is applied.
 # Example: Number_of_Pacing = 1000
-Number_of_Pacing = 300
+Number_of_Pacing = 100
 
 # Simulation_Mode
 # The mode of simulation to be performed.

@@ -93,41 +93,38 @@ int get_cvar_data_from_file(const char *file_name, unsigned int limit, double *c
  * @return int The number of samples read from the file.
  */
 
-int get_init_data_from_file(const char* file_name, double *init_states)
-{
-  // buffer for writing in snprintf() function
-  char buffer_cache[1023];
-  FILE *fp_cache;
-  // cvar_t cvar;
-  char *token;
-  // std::array<double,18> temp_array;
-  unsigned long idx;
+int get_init_data_from_file(const char *file_name, double *init_states) {
+    // buffer for writing in snprintf() function
+    char buffer_cache[1023];
+    FILE *fp_cache;
+    // cvar_t cvar;
+    char *token;
+    // std::array<double,18> temp_array;
+    unsigned long idx;
 
-  if( (fp_cache = fopen(file_name, "r")) == NULL){
-    printf("Cannot open file %s\n",
-      file_name);
-  }
-  idx = 0;
-  unsigned int sample_size = 0;
-  // fgets(buffer_cvar, sizeof(buffer_cvar), fp_cvar); // skip header
-  while( (fgets(buffer_cache, sizeof(buffer_cache), fp_cache) != NULL) )
-  { // begin line reading
-    token = strtok( buffer_cache, "," );
-    while( token != NULL )
-    { // begin data tokenizing
-      init_states[idx++] = strtod(token, NULL);
-      // if(idx < 82){
-      //     printf("%d: %lf\n",idx-1,init_states[idx-1]);
-      // }
-      token = strtok(NULL, ",");
-    } // end data tokenizing
-    // printf("\n");
-    sample_size++;
-    // cvar.push_back(temp_array);
-  } // end line reading
+    if ((fp_cache = fopen(file_name, "r")) == NULL) {
+        printf("Cannot open file %s\n",
+               file_name);
+    }
+    idx = 0;
+    unsigned int sample_size = 0;
+    fgets(buffer_cache, sizeof(buffer_cache), fp_cache); // skip header
+    while ((fgets(buffer_cache, sizeof(buffer_cache), fp_cache) != NULL)) { // begin line reading
+        token = strtok(buffer_cache, ",");
+        while (token != NULL) { // begin data tokenizing
+            init_states[idx++] = strtod(token, NULL);
+            // if(idx < 82){
+            //     printf("%d: %lf\n",idx-1,init_states[idx-1]);
+            // }
+            token = strtok(NULL, ",");
+        } // end data tokenizing
+        // printf("\n");
+        sample_size++;
+        // cvar.push_back(temp_array);
+    } // end line reading
 
-  fclose(fp_cache);
-  return sample_size;
+    fclose(fp_cache);
+    return sample_size;
 }
 
 /**
