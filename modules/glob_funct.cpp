@@ -92,7 +92,7 @@ void edison_assign_params(int argc, char *argv[], param_t *p_param)
     // else if (!strcasecmp(argv[idx], "-cvar_file"))
     //   strncpy(p_param->hill_file, argv[idx + 2], sizeof(p_param->cvar_file));
     else if (!strcasecmp(argv[idx], "-cache_file"))
-      strncpy(p_param->hill_file, argv[idx + 1], sizeof(p_param->cache_file));
+      strncpy(p_param->cache_file, argv[idx + 1], sizeof(p_param->cache_file));
   }
 
   fp_inputdeck = fopen(file_name, "r");
@@ -112,6 +112,9 @@ void edison_assign_params(int argc, char *argv[], param_t *p_param)
     }
     else if (strcasecmp(key, "Is_Dutta") == 0) {
       p_param->is_dutta = strtol(value, NULL, 10);
+    }
+    else if (strcasecmp(key, "Is_Post_Processing") == 0) {
+      p_param->is_time_series = strtol(value, NULL, 10);
     }
     else if (strcasecmp(key, "Use_Conductance_Variability") == 0) {
       p_param->is_cvar = strtol(value, NULL, 10);

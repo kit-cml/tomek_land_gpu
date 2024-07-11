@@ -36,7 +36,7 @@ int get_IC50_data_from_file(const char *file_name, double *ic50, double *conc) {
         token = strtok(NULL, ",");
         while (token != NULL) {
             ic50[idx_ic50++] = strtod(token, NULL);
-            printf("%s\n", token); // testingAuto
+            // printf("%s\n", token); // testingAuto
             token = strtok(NULL, ",");
         }
         sample_size++;

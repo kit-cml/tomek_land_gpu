@@ -63,6 +63,8 @@ __global__ void kernel_DrugSimulation_postpro(double *d_ic50, double *d_cvar, do
     double time_for_each_sample[10000];
     double dt_for_each_sample[10000];
 
+    if(thread_id==0) printf("%lf %lf\n",d_STATES_cache[0],d_STATES_cache[1]);
+
     kernel_DoDrugSim_post(d_ic50, d_cvar, d_conc[thread_id], d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES,
                             d_ALGEBRAIC, d_mec_CONSTANTS, d_mec_STATES, d_mec_RATES, d_mec_ALGEBRAIC, time, states,
                             out_dt, cai_result, ina, inal, ical, ito, ikr, iks, ik1, tension, time_for_each_sample,
@@ -262,6 +264,8 @@ __device__ void kernel_DoDrugSim_post(double *d_ic50, double *d_cvar, double d_c
     int num_of_algebraic = 199;
     int num_of_rates = 42;
 
+   if(sample_id==0) printf("%lf %lf\n",d_STATES_cache[0],d_STATES_cache[1]);
+
 
     // INIT STARTS
     
@@ -329,7 +333,7 @@ __device__ void kernel_DoDrugSim_post(double *d_ic50, double *d_cvar, double d_c
     const double inet_vm_threshold = p_param->inet_vm_threshold;
     // const unsigned short pace_max = 300;
     // const unsigned short pace_max = 1000;
-    const unsigned short pace_max = 1;
+    const unsigned short pace_max = 2;
     // const unsigned short celltype = 0.;
     // const unsigned short last_pace_print = 3;
     // const unsigned short last_drug_check_pace = 250;

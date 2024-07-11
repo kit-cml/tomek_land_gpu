@@ -58,6 +58,7 @@ int main(int argc, char **argv) {
     tic();
 
     if (p_param->is_time_series == 1 ) {
+        printf("Post Processing from Previous Result \n");
         double* cache = (double *)malloc((ORd_num_of_states+2) * sample_limit * sizeof(double)); // array for in silico results
         double *d_STATES_cache;
         double *d_all_states;

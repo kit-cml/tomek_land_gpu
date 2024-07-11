@@ -44,7 +44,7 @@ Is_Dutta = 1
 # 0: Perform in silico simulation
 # 1: Perform post-processing on previously generated data
 # Example: Is_Post_Processing = 0
-Is_Post_Processing = 0
+Is_Post_Processing = 1
 
 # Use_Conductance_Variability
 # Indicates whether to read an additional file containing individual conductance variability data.

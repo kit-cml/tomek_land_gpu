@@ -44,7 +44,7 @@ __device__ inline double check_min(double a, double b) { return fmin(a, b); }
  */
 __device__ void land_initConsts(bool is_skinned, bool BETA, double *y, double *CONSTANTS, double *RATES, double *STATES,
                                 double *ALGEBRAIC, int offset) {
-    printf("Successfully go to inside land_initConsts\n");
+    // printf("Successfully go to inside land_initConsts\n");
     CONSTANTS[offset * Land_num_of_constants + dlambda_dt] = 0;
     CONSTANTS[offset * Land_num_of_constants + lambda] = 1.0;
     CONSTANTS[offset * Land_num_of_constants + Cai] = 0.0;
@@ -110,7 +110,7 @@ __device__ void land_initConsts(bool is_skinned, bool BETA, double *y, double *C
     CONSTANTS[offset * Land_num_of_constants + eta_l] = 200;
     CONSTANTS[offset * Land_num_of_constants + eta_s] = 20;
     CONSTANTS[offset * Land_num_of_constants + land_a] = 2.1;
-    printf("Successfully finish land_initConsts\n");
+    // printf("Successfully finish land_initConsts\n");
 }
 
 /**
