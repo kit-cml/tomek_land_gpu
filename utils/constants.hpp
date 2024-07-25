@@ -21,10 +21,10 @@ const unsigned int ENOUGH = ((CHAR_BIT * sizeof(int) - 1) / 3 + 3);
 /**
  * @brief Number of constants, states, algebraic, and rates in the OHara Rudy 2011 model.
  */
-const int ORd_num_of_constants = 146;
-const int ORd_num_of_states = 42;
-const int ORd_num_of_algebraic = 199;
-const int ORd_num_of_rates = 42;
+const int Tomek_num_of_constants = 163;
+const int Tomek_num_of_states = 44;
+const int Tomek_num_of_algebraic = 223;
+const int Tomek_num_of_rates = 44;
 
 /**
  * @brief Number of constants, states, algebraic, and rates in the OHara Rudy 2011 model.
