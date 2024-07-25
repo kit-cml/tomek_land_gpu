@@ -7,7 +7,7 @@
 #include "Tomek_model.hpp"
 #include <cmath>
 #include <cstdlib>
-#include "../enums/enum_Tomek_model.hpp"
+#include "./enums/enum_Tomek_model.hpp"
 #include <iostream>
 #include "../utils/constants.hpp"
 // #include "../../functions/inputoutput.hpp"
@@ -497,7 +497,7 @@
 // Tomek_model::~Tomek_model()
 // {
 
-}
+// }
 
 __device__ void ___initConsts(double *CONSTANTS, double *STATES, double type, double bcl, int sample_id)
     {
@@ -732,12 +732,12 @@ __device__ void ___applyDrugEffect(double *CONSTANTS, double conc, double *hill,
 
 __device__ void initConsts(double *CONSTANTS, double *STATES, double type, double conc, double *ic50, double *cvar,  bool is_cvar, double bcl, double epsilon, int sample_id)
     {
-	___initConsts(type);
+	___initConsts(CONSTANTS, STATES, type, bcl, sample_id);
 	printf("Celltype: %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]);
 	#ifndef COMPONENT_PATCH
 	printf("Control %lf %lf %lf %lf %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa], CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs], CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr]);
 	#endif
-	___applyDrugEffect(conc, hill);
+	___applyDrugEffect(CONSTANTS, conc, ic50, sample_id);
 	#ifndef COMPONENT_PATCH
 	printf("After drug %lf %lf %lf %lf %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa], CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs], CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr]);
 	#endif
@@ -1269,9 +1269,9 @@ __device__ double set_time_step (double TIME, double time_point, double max_time
   }
   else {
     //printf("TIME > time_point ms\n");
-    if (std::abs(RATES[(sample_id * Tomek_num_of_rates) + (rates_size * sample_id) + V] * time_step) <= min_dV) {//Slow changes in V
+    if (std::abs(RATES[(sample_id * Tomek_num_of_rates) + V] * time_step) <= min_dV) {//Slow changes in V
         //printf("dV/dt <= 0.2\n");
-        time_step = std::abs(max_dV / RATES[(sample_id * Tomek_num_of_rates) + (rates_size * sample_id) + V]);
+        time_step = std::abs(max_dV / RATES[(sample_id * Tomek_num_of_rates)  + V]);
         //Make sure time_step is between min time step and max_time_step
         if (time_step < min_time_step) {
             time_step = min_time_step;
