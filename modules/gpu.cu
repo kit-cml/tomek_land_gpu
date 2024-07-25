@@ -145,7 +145,7 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
 
     // Initialize constants and apply drug effects
     initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, p_param->is_dutta, p_param->is_cvar, bcl, sample_id);
-    applyDrugEffect(d_CONSTANTS, conc, d_ic50, epsilon, sample_id);
+    applyDrugEffect(d_CONSTANTS, conc, d_ic50, sample_id);
     land_initConsts(false, false, y, d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC, sample_id);
 
     d_CONSTANTS[BCL + (sample_id * Tomek_num_of_constants)] = bcl;
@@ -154,13 +154,12 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
     // dt_set = 0.001;
     while (tcurr[sample_id] < tmax) {
         // Compute rates
-        coupledComputeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id,
+        ComputeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id,
                      d_mec_RATES[TRPN + (sample_id * Land_num_of_rates)]);
         land_computeRates(tcurr[sample_id], d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC, y, sample_id);
         // Set time step (adaptive dt)
         //NOTE: Disabled in Margara
-        dt_set = set_time_step(tcurr[sample_id], time_point, max_time_step, d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC,
-                              sample_id);
+        dt_set = set_time_step(tcurr[sample_id], time_point, max_time_step, d_CONSTANTS, d_RATES, sample_id);
         // dt_set = 0.005;
         // Check if within the same cycle
         if (floor((tcurr[sample_id] + dt_set) / bcl) == floor(tcurr[sample_id] / bcl)) {
@@ -394,7 +393,7 @@ __device__ void kernel_DoDrugSim_post(double *d_ic50, double *d_cvar, double d_c
 
 
     // printf("%d: %lf, %d\n", sample_id,d_STATES[V + (sample_id * Tomek_num_of_states)], cnt);
-    applyDrugEffect(d_CONSTANTS, conc, d_ic50, epsilon, sample_id);
+    applyDrugEffect(d_CONSTANTS, conc, d_ic50, sample_id);
 
     d_CONSTANTS[BCL + (sample_id * Tomek_num_of_constants)] = bcl;
 
@@ -410,14 +409,9 @@ __device__ void kernel_DoDrugSim_post(double *d_ic50, double *d_cvar, double d_c
     {
         // updated coupling
         land_computeRates(tcurr[sample_id], d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC, y, sample_id);
-        coupledComputeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_mec_RATES[TRPN + (sample_id * Land_num_of_rates)]);
+        ComputeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_mec_RATES[TRPN + (sample_id * Land_num_of_rates)]);
         
-        // dt_set = set_time_step( tcurr[sample_id], time_point, max_time_step, 
-        // d_CONSTANTS, 
-        // d_RATES, 
-        // d_STATES, 
-        // d_ALGEBRAIC, 
-        // sample_id); 
+        // dt_set = set_time_step( tcurr[sample_id], time_point, max_time_step, CONSTANTS, RATES, sample_id); 
         dt_set = 0.001;
         if(d_STATES[(sample_id * Tomek_num_of_states)+V] > inet_vm_threshold){
           inet += (d_ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) +INaL]+d_ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) +ICaL]+d_ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) +Ito]+d_ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) +IKr]+d_ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) +IKs]+d_ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) +IK1])*dt[sample_id];
