@@ -285,7 +285,7 @@ enum CONSTANTS{
   ICaL_fractionSS = 54,
   GKr_b = 55,
   alpha_1 = 56,
-  beta_1 = 57,
+  beta_1_tomek = 57,
   GKs_b = 58,
   GK1_b = 59,
   INaCa_fractionSS = 60,

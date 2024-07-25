@@ -251,7 +251,7 @@
  * ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha] is alpha in component IKr (per_millisecond).
  * ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta] is beta in component IKr (per_millisecond).
  * CONSTANTS[(sample_id * Tomek_num_of_constants) + alpha_1] is alpha_1 in component IKr (per_millisecond).
- * CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1] is beta_1 in component IKr (per_millisecond).
+ * CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1_tomek] is beta_1_tomek in component IKr (per_millisecond).
  * ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_2] is alpha_2 in component IKr (per_millisecond).
  * ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_2] is beta_2 in component IKr (per_millisecond).
  * ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_i] is alpha_i in component IKr (per_millisecond).
@@ -597,7 +597,7 @@ __device__ void ___initConsts(double *CONSTANTS, double *STATES, double type, do
     STATES[(sample_id * Tomek_num_of_states) + I] = (CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==1.00000 ? 9.54E-06 : CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==2.00000 ? 1.88E-05 : 1.3289e-5);
     STATES[(sample_id * Tomek_num_of_states) + O] = (CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==1.00000 ? 2.76E-04 : CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==2.00000 ? 5.42E-04 : 3.7585e-4);
     CONSTANTS[(sample_id * Tomek_num_of_constants) + alpha_1] = 0.154375;
-    CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1] = 0.1911;
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1_tomek] = 0.1911;
     CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs_b] = 0.0011;
     STATES[(sample_id * Tomek_num_of_states) + xs1] = (CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==1.00000 ? 0.2309 : CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==2.00000 ? 0.2653 : 0.248);
     STATES[(sample_id * Tomek_num_of_states) + xs2] = (CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==1.00000 ? 1.70E-04 : CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==2.00000 ? 1.69E-04 : 1.7707e-4);
@@ -994,13 +994,13 @@ __device__ void computeRates(double TIME, double* CONSTANTS, double* RATES, doub
     RATES[(sample_id * Tomek_num_of_rates) + hp] = (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + hssp] - STATES[(sample_id * Tomek_num_of_states) + hp])/ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + th];
     RATES[(sample_id * Tomek_num_of_rates) + iF] = (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + iss] - STATES[(sample_id * Tomek_num_of_states) + iF])/ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + tiF];
     RATES[(sample_id * Tomek_num_of_rates) + C3] =  ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta]*STATES[(sample_id * Tomek_num_of_states) + C2] -  ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha]*STATES[(sample_id * Tomek_num_of_states) + C3];
-    RATES[(sample_id * Tomek_num_of_rates) + C2] = ( ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha]*STATES[(sample_id * Tomek_num_of_states) + C3]+ CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1]*STATES[(sample_id * Tomek_num_of_states) + C1]) -  (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta]+CONSTANTS[(sample_id * Tomek_num_of_constants) + alpha_1])*STATES[(sample_id * Tomek_num_of_states) + C2];
+    RATES[(sample_id * Tomek_num_of_rates) + C2] = ( ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha]*STATES[(sample_id * Tomek_num_of_states) + C3]+ CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1_tomek]*STATES[(sample_id * Tomek_num_of_states) + C1]) -  (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta]+CONSTANTS[(sample_id * Tomek_num_of_constants) + alpha_1])*STATES[(sample_id * Tomek_num_of_states) + C2];
     RATES[(sample_id * Tomek_num_of_rates) + jp] = (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + jss] - STATES[(sample_id * Tomek_num_of_states) + jp])/ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + tjp];
     RATES[(sample_id * Tomek_num_of_rates) + iS] = (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + iss] - STATES[(sample_id * Tomek_num_of_states) + iS])/ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + tiS];
     RATES[(sample_id * Tomek_num_of_rates) + O] = ( ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_2]*STATES[(sample_id * Tomek_num_of_states) + C1]+ ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_i]*STATES[(sample_id * Tomek_num_of_states) + I]) -  (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_2]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_i])*STATES[(sample_id * Tomek_num_of_states) + O];
     RATES[(sample_id * Tomek_num_of_rates) + iFp] = (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + iss] - STATES[(sample_id * Tomek_num_of_states) + iFp])/ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + tiFp];
     RATES[(sample_id * Tomek_num_of_rates) + iSp] = (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + iss] - STATES[(sample_id * Tomek_num_of_states) + iSp])/ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + tiSp];
-    RATES[(sample_id * Tomek_num_of_rates) + C1] = ( CONSTANTS[(sample_id * Tomek_num_of_constants) + alpha_1]*STATES[(sample_id * Tomek_num_of_states) + C2]+ ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_2]*STATES[(sample_id * Tomek_num_of_states) + O]+ ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_ItoC2]*STATES[(sample_id * Tomek_num_of_states) + I]) -  (CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_2]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_C2ToI])*STATES[(sample_id * Tomek_num_of_states) + C1];
+    RATES[(sample_id * Tomek_num_of_rates) + C1] = ( CONSTANTS[(sample_id * Tomek_num_of_constants) + alpha_1]*STATES[(sample_id * Tomek_num_of_states) + C2]+ ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_2]*STATES[(sample_id * Tomek_num_of_states) + O]+ ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_ItoC2]*STATES[(sample_id * Tomek_num_of_states) + I]) -  (CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1_tomek]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_2]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_C2ToI])*STATES[(sample_id * Tomek_num_of_states) + C1];
     RATES[(sample_id * Tomek_num_of_rates) + I] = ( ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_C2ToI]*STATES[(sample_id * Tomek_num_of_states) + C1]+ ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_i]*STATES[(sample_id * Tomek_num_of_states) + O]) -  (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_ItoC2]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_i])*STATES[(sample_id * Tomek_num_of_states) + I];
     RATES[(sample_id * Tomek_num_of_rates) + Jrel_np] = (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + Jrel_inf] - STATES[(sample_id * Tomek_num_of_states) + Jrel_np])/ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + tau_rel];
     RATES[(sample_id * Tomek_num_of_rates) + Jrel_p] = (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + Jrel_infp] - STATES[(sample_id * Tomek_num_of_states) + Jrel_p])/ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + tau_relp];
@@ -1147,9 +1147,9 @@ __device__ void solveAnalytical(double *CONSTANTS, double *STATES, double *ALGEB
     coeffs[5] = ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_C2ToI];
     coeffs[6] = ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_2];
     coeffs[7] = ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta_ItoC2];
-    coeffs[8] = -  (CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_2]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_C2ToI]);
+    coeffs[8] = -  (CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1_tomek]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_2]+ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha_C2ToI]);
     coeffs[9] = CONSTANTS[(sample_id * Tomek_num_of_constants) + alpha_1];
-    coeffs[10] = CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1];
+    coeffs[10] = CONSTANTS[(sample_id * Tomek_num_of_constants) + beta_1_tomek];
     coeffs[11] = -  (ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta]+CONSTANTS[(sample_id * Tomek_num_of_constants) + alpha_1]);
     coeffs[12] = ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + alpha];
     coeffs[13] = ALGEBRAIC[(sample_id * Tomek_num_of_algebraic) + beta];
