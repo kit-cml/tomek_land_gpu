@@ -145,7 +145,7 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
 
     // Initialize constants and apply drug effects
     initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, p_param->is_dutta, p_param->is_cvar, bcl, sample_id);
-    applyDrugEffect(d_CONSTANTS, conc, d_ic50, sample_id);
+    // applyDrugEffect(d_CONSTANTS, conc, d_ic50, sample_id);
     land_initConsts(false, false, y, d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC, sample_id);
 
     d_CONSTANTS[BCL + (sample_id * Tomek_num_of_constants)] = bcl;
@@ -393,7 +393,7 @@ __device__ void kernel_DoDrugSim_post(double *d_ic50, double *d_cvar, double d_c
 
 
     // printf("%d: %lf, %d\n", sample_id,d_STATES[V + (sample_id * Tomek_num_of_states)], cnt);
-    applyDrugEffect(d_CONSTANTS, conc, d_ic50, sample_id);
+    // applyDrugEffect(d_CONSTANTS, conc, d_ic50, sample_id);
 
     d_CONSTANTS[BCL + (sample_id * Tomek_num_of_constants)] = bcl;
 
