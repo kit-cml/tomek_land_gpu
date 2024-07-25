@@ -9,14 +9,14 @@
  * @brief Prepares GPU memory space and copies initial data from host to device.
  *
  * @param d_ALGEBRAIC Pointer to device memory for algebraic variables.
- * @param ORd_num_of_algebraic Number of algebraic variables.
+ * @param Tomek_num_of_algebraic Number of algebraic variables.
  * @param sample_size Number of samples.
  * @param d_CONSTANTS Pointer to device memory for constants.
- * @param ORd_num_of_constants Number of constants.
+ * @param Tomek_num_of_constants Number of constants.
  * @param d_RATES Pointer to device memory for rates.
- * @param ORd_num_of_rates Number of rates.
+ * @param Tomek_num_of_rates Number of rates.
  * @param d_STATES Pointer to device memory for states.
- * @param ORd_num_of_states Number of states.
+ * @param Tomek_num_of_states Number of states.
  * @param d_p_param Pointer to device memory for parameters.
  * @param temp_result Pointer to device memory for temporary results.
  * @param cipa_result Pointer to device memory for CIPA results.
@@ -35,10 +35,10 @@ void prepingGPUMemory(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANT
     printf("preparing GPU memory space \n");
 
     // Allocate memory on the device
-    cudaMalloc(&d_ALGEBRAIC, ORd_num_of_algebraic * sample_size * sizeof(double));
-    cudaMalloc(&d_CONSTANTS, ORd_num_of_constants * sample_size * sizeof(double));
-    cudaMalloc(&d_RATES, ORd_num_of_rates * sample_size * sizeof(double));
-    cudaMalloc(&d_STATES, ORd_num_of_states * sample_size * sizeof(double));
+    cudaMalloc(&d_ALGEBRAIC, Tomek_num_of_algebraic * sample_size * sizeof(double));
+    cudaMalloc(&d_CONSTANTS, Tomek_num_of_constants * sample_size * sizeof(double));
+    cudaMalloc(&d_RATES, Tomek_num_of_rates * sample_size * sizeof(double));
+    cudaMalloc(&d_STATES, Tomek_num_of_states * sample_size * sizeof(double));
     cudaMalloc(&d_mec_ALGEBRAIC, Land_num_of_algebraic * sample_size * sizeof(double));
     cudaMalloc(&d_mec_CONSTANTS, Land_num_of_constants * sample_size * sizeof(double));
     cudaMalloc(&d_mec_RATES, Land_num_of_rates * sample_size * sizeof(double));
@@ -46,7 +46,7 @@ void prepingGPUMemory(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANT
     cudaMalloc(&d_p_param, sizeof(param_t));
     cudaMalloc(&temp_result, sample_size * sizeof(cipa_t));
     cudaMalloc(&cipa_result, sample_size * sizeof(cipa_t));
-    cudaMalloc(&d_STATES_RESULT, ORd_num_of_states * sample_size * sizeof(double));
+    cudaMalloc(&d_STATES_RESULT, Tomek_num_of_states * sample_size * sizeof(double));
 
     // Allocate memory for IC50 and concentration data
     cudaMalloc(&d_ic50, sample_size * 14 * sizeof(double));
@@ -68,11 +68,11 @@ void prepingGPUMemoryPostpro(int sample_size, double *&d_ALGEBRAIC, double *&d_C
     printf("preparing GPU memory space \n");
 
     // Allocate memory on the device
-    cudaMalloc(&d_ALGEBRAIC, ORd_num_of_algebraic * sample_size * sizeof(double));
-    cudaMalloc(&d_CONSTANTS, ORd_num_of_constants * sample_size * sizeof(double));
-    cudaMalloc(&d_RATES, ORd_num_of_rates * sample_size * sizeof(double));
-    cudaMalloc(&d_STATES, ORd_num_of_states * sample_size * sizeof(double));
-    cudaMalloc(&d_STATES_cache, (ORd_num_of_states + 2) * sample_size * sizeof(double));
+    cudaMalloc(&d_ALGEBRAIC, Tomek_num_of_algebraic * sample_size * sizeof(double));
+    cudaMalloc(&d_CONSTANTS, Tomek_num_of_constants * sample_size * sizeof(double));
+    cudaMalloc(&d_RATES, Tomek_num_of_rates * sample_size * sizeof(double));
+    cudaMalloc(&d_STATES, Tomek_num_of_states * sample_size * sizeof(double));
+    cudaMalloc(&d_STATES_cache, (Tomek_num_of_states + 2) * sample_size * sizeof(double));
 
     cudaMalloc(&d_mec_ALGEBRAIC, Land_num_of_algebraic * sample_size * sizeof(double));
     cudaMalloc(&d_mec_CONSTANTS, Land_num_of_constants * sample_size * sizeof(double));
@@ -82,7 +82,7 @@ void prepingGPUMemoryPostpro(int sample_size, double *&d_ALGEBRAIC, double *&d_C
     cudaMalloc(&d_p_param, sizeof(param_t));
     cudaMalloc(&temp_result, sample_size * sizeof(cipa_t));
     cudaMalloc(&cipa_result, sample_size * sizeof(cipa_t));
-    cudaMalloc(&d_STATES_RESULT, ORd_num_of_states * sample_size * sizeof(double)); // check for wat later
+    cudaMalloc(&d_STATES_RESULT, Tomek_num_of_states * sample_size * sizeof(double)); // check for wat later
 
         cudaMalloc(&time, sample_size * datapoint_size * sizeof(double));
         cudaMalloc(&dt, sample_size * datapoint_size * sizeof(double));
@@ -102,7 +102,7 @@ void prepingGPUMemoryPostpro(int sample_size, double *&d_ALGEBRAIC, double *&d_C
 //    cudaMalloc(&d_cvar, sample_size * 18 * sizeof(double));
    cudaMalloc(&d_conc, sample_size * sizeof(double));
 
-   cudaMemcpy(d_STATES_cache, cache, (ORd_num_of_states + 2) * sample_size * sizeof(double), cudaMemcpyHostToDevice);
+   cudaMemcpy(d_STATES_cache, cache, (Tomek_num_of_states + 2) * sample_size * sizeof(double), cudaMemcpyHostToDevice);
    cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice);
         
 //    cudaMemcpy(d_cvar, cvar, sample_size * 18 * sizeof(double), cudaMemcpyHostToDevice);
