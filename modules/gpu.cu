@@ -153,10 +153,11 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
     // Main simulation loop
     // dt_set = 0.001;
     while (tcurr[sample_id] < tmax) {
-        // Compute rates
-        computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id,
-                     d_mec_RATES[TRPN + (sample_id * Land_num_of_rates)]);
+        // Compute rates, revised for newer coupling algorithm
         land_computeRates(tcurr[sample_id], d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC, y, sample_id);
+
+        computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_mec_RATES[TRPN + (sample_id * Land_num_of_rates)]);
+        
         // Set time step (adaptive dt)
         //NOTE: Disabled in Margara
         dt_set = set_time_step(tcurr[sample_id], time_point, max_time_step, d_CONSTANTS, d_RATES, sample_id);
@@ -195,10 +196,9 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
             }
         }
 
-        // Solve ODEs analytically
+        // Solve ODEs analytically, checked for new algorithm
         solveAnalytical(d_CONSTANTS, d_STATES, d_ALGEBRAIC, d_RATES, dt[sample_id], sample_id);
-        land_solveEuler(dt[sample_id], tcurr[sample_id], d_STATES[cai + (sample_id * Tomek_num_of_states)] * 1000.,
-                        d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, sample_id);
+        land_solveEuler(dt[sample_id], tcurr[sample_id], d_STATES[cai + (sample_id * Tomek_num_of_states)] * 1000., d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, sample_id);
 
         // Perform checks in the last few pacing cycles
         if (pace_count >= pace_max - last_drug_check_pace) {
