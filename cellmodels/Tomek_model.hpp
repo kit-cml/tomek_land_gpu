@@ -9,7 +9,7 @@
 	__device__ void solveAnalytical(double *CONSTANTS, double *STATES, double *ALGEBRAIC, double *RATES, double dt, int sample_id);
 	__device__ double set_time_step(double TIME, double time_point, double max_time_step, double* CONSTANTS, double* RATES, int sample_id);
     __device__ void applyDrugEffect(double *CONSTANTS, double conc, double *hill, int sample_id);
-	// __device__ void ___applyCvar(double *CONSTANTS, double *cvar, int sample_id);
+	__device__ void ___applyCvar(double *CONSTANTS, double *cvar, int sample_id);
 	__device__ void ___initConsts(double *CONSTANTS, double *STATES, double type, double bcl, int sample_id);
 	__device__ void ___gaussElimination(double *A, double *b, double *x, int N);
 

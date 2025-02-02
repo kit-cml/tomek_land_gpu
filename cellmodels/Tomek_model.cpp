@@ -656,6 +656,9 @@ __device__ void ___initConsts(double *CONSTANTS, double *STATES, double type, do
     CONSTANTS[(sample_id * Tomek_num_of_constants) + cajsr_half] = 1.7;
     CONSTANTS[(sample_id * Tomek_num_of_constants) + Jrel_b] = 1.5378;
     CONSTANTS[(sample_id * Tomek_num_of_constants) + Jup_b] = 1.0;
+    // CVAR: Additional scaling factor for Jleak and Jtr
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + Jtr_b] = 1.0;	// Trans_Total (NSR to JSR translocation)
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + Jleak_b] = 1.0;	// Leak_Total (Ca leak from NSR)
     CONSTANTS[(sample_id * Tomek_num_of_constants) + vcell] =  1000.00*3.14000*CONSTANTS[(sample_id * Tomek_num_of_constants) + rad]*CONSTANTS[(sample_id * Tomek_num_of_constants) + rad]*CONSTANTS[(sample_id * Tomek_num_of_constants) + L];
     CONSTANTS[(sample_id * Tomek_num_of_constants) + cmdnmax] = (CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==1.00000 ?  CONSTANTS[(sample_id * Tomek_num_of_constants) + cmdnmax_b]*1.30000 : CONSTANTS[(sample_id * Tomek_num_of_constants) + cmdnmax_b]);
     CONSTANTS[(sample_id * Tomek_num_of_constants) + ECl] =  (( CONSTANTS[(sample_id * Tomek_num_of_constants) + R]*CONSTANTS[(sample_id * Tomek_num_of_constants) + T])/( CONSTANTS[(sample_id * Tomek_num_of_constants) + zcl]*CONSTANTS[(sample_id * Tomek_num_of_constants) + F]))*log(CONSTANTS[(sample_id * Tomek_num_of_constants) + clo]/CONSTANTS[(sample_id * Tomek_num_of_constants) + cli]);
@@ -709,16 +712,39 @@ __device__ void ___initConsts(double *CONSTANTS, double *STATES, double type, do
     CONSTANTS[(sample_id * Tomek_num_of_constants) + Pnak] = (CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==1.00000 ?  CONSTANTS[(sample_id * Tomek_num_of_constants) + Pnak_b]*0.900000 : CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]==2.00000 ?  CONSTANTS[(sample_id * Tomek_num_of_constants) + Pnak_b]*0.700000 : CONSTANTS[(sample_id * Tomek_num_of_constants) + Pnak_b]);
 }
 
+__device__ void ___applyCvar(double *CONSTANTS, double *cvar, int sample_id) {
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + GNa] *= cvar[(sample_id * 18) + 0];		    // GNa
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL_b] *= cvar[(sample_id * 18) + 1];		// GNaL
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + Gto_b] *= cvar[(sample_id * 18) + 2];		// Gto
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr_b] *= cvar[(sample_id * 18) + 3];		// GKr
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs_b] *= cvar[(sample_id * 18) + 4];		// GKs
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1_b] *= cvar[(sample_id * 18) + 5];		// GK1
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + Gncx_b] *= cvar[(sample_id * 18) + 6];		// GNaCa
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + GKb_b] *= cvar[(sample_id * 18) + 7];		// GKb
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa_b] *= cvar[(sample_id * 18) + 8];		// PCa
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + Pnak_b] *= cvar[(sample_id * 18) + 9];		// INaK
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + PNab] *= cvar[(sample_id * 18) + 10];		// PNab
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + PCab] *= cvar[(sample_id * 18) + 11];		// PCab
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + GpCa] *= cvar[(sample_id * 18) + 12];		// GpCa
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + KmCaMK] *= cvar[(sample_id * 18) + 17];	// KCaMK
+
+  // Additional constants
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + Jrel_b] *= cvar[(sample_id * 18) + 13];	// SERCA_Total (release)
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + Jup_b] *= cvar[(sample_id * 18) + 14];	// RyR_Total (uptake)
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + Jtr_b] *= cvar[(sample_id * 18) + 15];	// Trans_Total (NSR to JSR translocation)
+  CONSTANTS[(sample_id * Tomek_num_of_constants) + Jleak_b] *= cvar[(sample_id * 18) + 16];	// Leak_Total (Ca leak from NSR)
+}
+
 __device__ void ___applyDrugEffect(double *CONSTANTS, double conc, double *hill, int sample_id)
-    {
-    CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1] * ((hill[(sample_id * 14) +2] > 10E-14 && hill[(sample_id * 14) +3] > 10E-14) ? 1./(1.+pow(conc/hill[(sample_id * 14) +2],hill[(sample_id * 14) +3])) : 1.);
-    CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr] * ((hill[(sample_id * 14) +12] > 10E-14 && hill[(sample_id * 14) +13] > 10E-14) ? 1./(1.+pow(conc/hill[(sample_id * 14) +12],hill[(sample_id * 14) +13])) : 1.);
-    CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs] * ((hill[(sample_id * 14) +4] > 10E-14 && hill[(sample_id * 14) +5] > 10E-14) ? 1./(1.+pow(conc/hill[(sample_id * 14) +4],hill[(sample_id * 14) +5])) : 1.);
-    CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL] * ((hill[(sample_id * 14) +8] > 10E-14 && hill[(sample_id * 14) +9] > 10E-14) ? 1./(1.+pow(conc/hill[(sample_id * 14) +8],hill[(sample_id * 14) +9])) : 1.);
-    CONSTANTS[(sample_id * Tomek_num_of_constants) + GNa] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GNa] * ((hill[(sample_id * 14) +6] > 10E-14 && hill[(sample_id * 14) +7] > 10E-14) ? 1./(1.+pow(conc/hill[(sample_id * 14) +6],hill[(sample_id * 14) +7])) : 1.);
-    CONSTANTS[(sample_id * Tomek_num_of_constants) + Gto] = CONSTANTS[(sample_id * Tomek_num_of_constants) + Gto] * ((hill[(sample_id * 14) +10] > 10E-14 && hill[(sample_id * 14) +11] > 10E-14) ? 1./(1.+pow(conc/hill[(sample_id * 14) +10],hill[(sample_id * 14) +11])) : 1.);
-    CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa] = CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa] * ( (hill[(sample_id * 14) +0] > 10E-14 && hill[(sample_id * 14) +1] > 10E-14) ? 1./(1.+pow(conc/hill[(sample_id * 14) +0],hill[(sample_id * 14) +1])) : 1.);
-    }
+{
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa_b] = CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa_b] * ((hill[(14 * sample_id) + 0] > 10E-14 && hill[(14 * sample_id) + 1] > 10E-14) ? 1./(1.+pow(conc/hill[(14 * sample_id) + 0],hill[(14 * sample_id) + 1])) : 1.);
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1_b] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1_b] * ((hill[(14 * sample_id) + 2] > 10E-14 && hill[(14 * sample_id) + 3] > 10E-14) ? 1./(1.+pow(conc/hill[(14 * sample_id) + 2],hill[(14 * sample_id) + 3])) : 1.);
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs_b] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs_b] * ((hill[(14 * sample_id) + 4] > 10E-14 && hill[(14 * sample_id) + 5] > 10E-14) ? 1./(1.+pow(conc/hill[(14 * sample_id) + 4],hill[(14 * sample_id) + 5])) : 1.);
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + GNa] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GNa] * ((hill[(14 * sample_id) + 6] > 10E-14 && hill[(14 * sample_id) + 7] > 10E-14) ? 1./(1.+pow(conc/hill[(14 * sample_id) + 6],hill[(14 * sample_id) + 7])) : 1.);
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL_b] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL_b] * ((hill[(14 * sample_id) + 8] > 10E-14 && hill[(14 * sample_id) + 9] > 10E-14) ? 1./(1.+pow(conc/hill[(14 * sample_id) + 8],hill[(14 * sample_id) + 9])) : 1.);
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + Gto_b] = CONSTANTS[(sample_id * Tomek_num_of_constants) + Gto_b] * ((hill[(14 * sample_id) + 10] > 10E-14 && hill[(14 * sample_id) + 11] > 10E-14) ? 1./(1.+pow(conc/hill[(14 * sample_id) + 10],hill[(14 * sample_id) + 11])) : 1.);
+    CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr_b] = CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr_b] * ((hill[(14 * sample_id) + 12] > 10E-14 && hill[(14 * sample_id) + 13] > 10E-14) ? 1./(1.+pow(conc/hill[(14 * sample_id) + 12],hill[(14 * sample_id) + 13])) : 1.);
+}
 
 // __device__ void initConsts()
 // {
@@ -738,6 +764,13 @@ __device__ void initConsts(double *CONSTANTS, double *STATES, double type, doubl
 	printf("Control %lf %lf %lf %lf %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa], CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs], CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr]);
 	#endif
 	___applyDrugEffect(CONSTANTS, conc, ic50, sample_id);
+    if (is_cvar == 1){ 
+    ___applyCvar(CONSTANTS, cvar, sample_id); //implemented
+    if (sample_id == 0){
+      printf("Implementing Inter-individual Variability\n");
+      printf("After cvar: \nPCa:%lf \nGK1:%lf \nGKs:%lf \nGNa:%lf \nGNaL:%lf \nGto:%lf \nGKr:%lf\n", 
+      CONSTANTS[(constants_size * 0) + PCa_b], CONSTANTS[(constants_size * 0) + GK1_b], CONSTANTS[(constants_size * 0) + GKs_b], CONSTANTS[(constants_size * 0) + GNa], CONSTANTS[(constants_size * 0) + GNaL_b], CONSTANTS[(constants_size * 0) + Gto_b], CONSTANTS[(constants_size * 0) + GKr_b]);
+    }
 	#ifndef COMPONENT_PATCH
 	printf("After drug %lf %lf %lf %lf %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa], CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs], CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr]);
 	#endif

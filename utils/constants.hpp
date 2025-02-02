@@ -21,7 +21,7 @@ const unsigned int ENOUGH = ((CHAR_BIT * sizeof(int) - 1) / 3 + 3);
 /**
  * @brief Number of constants, states, algebraic, and rates in the OHara Rudy 2011 model.
  */
-const int Tomek_num_of_constants = 163;
+const int Tomek_num_of_constants = 163 + 2; // Add 2 constant for scaling factor, Jtr and Jleak
 const int Tomek_num_of_states = 44;
 const int Tomek_num_of_algebraic = 223;
 const int Tomek_num_of_rates = 44;
