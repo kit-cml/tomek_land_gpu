@@ -770,6 +770,7 @@ __device__ void initConsts(double *CONSTANTS, double *STATES, double type, doubl
       printf("Implementing Inter-individual Variability\n");
       printf("After cvar: \nPCa:%lf \nGK1:%lf \nGKs:%lf \nGNa:%lf \nGNaL:%lf \nGto:%lf \nGKr:%lf\n", 
       CONSTANTS[(constants_size * 0) + PCa_b], CONSTANTS[(constants_size * 0) + GK1_b], CONSTANTS[(constants_size * 0) + GKs_b], CONSTANTS[(constants_size * 0) + GNa], CONSTANTS[(constants_size * 0) + GNaL_b], CONSTANTS[(constants_size * 0) + Gto_b], CONSTANTS[(constants_size * 0) + GKr_b]);
+        }
     }
 	#ifndef COMPONENT_PATCH
 	printf("After drug %lf %lf %lf %lf %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa], CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs], CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr]);
