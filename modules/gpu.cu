@@ -33,17 +33,28 @@ __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_
                                       double *out_dt, double *cai_result, double *ina, double *inal, double *ical,
                                       double *ito, double *ikr, double *iks, double *ik1, unsigned int sample_size,
                                       cipa_t *temp_result, cipa_t *cipa_result, param_t *p_param) {
-    unsigned short thread_id = blockIdx.x * blockDim.x + threadIdx.x;
-    if (thread_id >= sample_size) return;
-
+    unsigned short thread_id = blockIdx.x * blockDim.x + threadIdx.x; 
+    if(thread_id < sample_size) {
+      printf("thread_id: %d\n",thread_id);
+      printf("IC50: %lf\n",d_ic50[thread_id]);
+      printf("Concentration: %lf\n",d_conc[thread_id]);    
+    }
+    
+    printf("Calculating %d from %d\n",thread_id, sample_size);
+    if (thread_id >= sample_size) 
+    {
+      printf("Returning due to %d is larger or equal to %d\n",thread_id, sample_size);
+      return ;
+    }
+    
     // Local arrays for each sample
     double time_for_each_sample[10000];
     double dt_for_each_sample[10000];
 
-    // printf("Calculating %d\n",thread_id);
+   
      // Run the drug simulation for each sample
-    kernel_DoDrugSim_init(d_ic50, d_cvar, d_conc[thread_id], d_CONSTANTS, d_STATES, d_RATES, d_ALGEBRAIC,
-                          d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC, d_STATES_RESULT,
+    kernel_DoDrugSim_init(d_ic50, d_cvar, d_conc[thread_id], d_CONSTANTS, d_STATES, d_RATES, d_ALGEBRAIC, d_STATES_RESULT,
+                          d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC,
                           time_for_each_sample, dt_for_each_sample, thread_id, sample_size, temp_result, cipa_result,
                           p_param);
     
@@ -97,7 +108,7 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
                                       unsigned int sample_size, cipa_t *temp_result, cipa_t *cipa_result,
                                       param_t *p_param) {
     unsigned int input_counter = 0;
-
+ printf("Calculating %d\n",sample_id);
     // Initialize temporary result and CiPA result structures
     auto init_result = [](cipa_t &result, const double *STATES, unsigned int sample_id) {
         result.qnet = 0.;
@@ -116,6 +127,7 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
         result.cad90 = 0.;
         result.cad50 = 0.;
     };
+   
 
     // Initialize results for this sample
     init_result(temp_result[sample_id], d_STATES, sample_id);
@@ -142,6 +154,9 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
     double y[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
     double epsilon = 10E-14;
     double vm_repol30, vm_repol90;
+
+    printf("core: %d pace count: %d t: %lf, steepest: %d, dvmdt_repol: %lf, conc: %lf\n", sample_id,
+           pace_count, tcurr[sample_id], pace_steepest, cipa_result[sample_id].dvmdt_repol, conc);
 
     // Initialize constants and apply drug effects
     initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, p_param->is_dutta, p_param->is_cvar, bcl, sample_id);
