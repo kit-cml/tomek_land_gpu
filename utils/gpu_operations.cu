@@ -5,6 +5,16 @@
 #include "gpu_operations.hpp"
 #include "constants.hpp"
 
+#define CUDA_CHECK(call) do { \
+    cudaError_t err = call; \
+    if (err != cudaSuccess) { \
+        printf("CUDA error at %s:%d: %s\n", __FILE__, __LINE__, \
+               cudaGetErrorString(err)); \
+        return; \
+    } \
+} while(0)
+
+
 /**
  * @brief Prepares GPU memory space and copies initial data from host to device.
  *
@@ -58,8 +68,10 @@ void prepingGPUMemory(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANT
 
     // Copy data from host to device
     printf("Copying sample files to GPU memory space \n");
-    cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice);
+    // cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_cvar, cvar, sample_size * 18 * sizeof(double), cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice));
+    // CUDA_CHECK(cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice));
     err = cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice);
     if (err != cudaSuccess) {
         printf("Error in cudaMemcpy for d_conc: %s\n", cudaGetErrorString(err));

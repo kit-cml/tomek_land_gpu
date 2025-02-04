@@ -94,7 +94,7 @@ $(PROGNAME) : $(OBJECTS) Makefile
 #
 # Choice 2: don't use implicit rules and specify our will
 %.o: %.cpp $(HEADERS) Makefile
-	$(CXX) -x cu $(CXXFLAGS) $(CPPFLAGS) -dc -arch=sm_86 $(OUTPUT_OPTION) $<
+	$(CXX) -x cu $(CXXFLAGS) $(CPPFLAGS) -dc -arch=sm_89 $(OUTPUT_OPTION) $<
 # -dc -rdc=true 
 
 # Simple clean-up target
