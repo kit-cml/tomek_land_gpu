@@ -41,6 +41,7 @@ int main(int argc, char **argv) {
     cipa_t *temp_result, *cipa_result;
 
     int sample_size = get_IC50_data_from_file(p_param->hill_file, ic50, conc);
+    printf("Concentration sample: %f\n", conc[0]);
     int blocksPerGrid = (sample_size + threadsPerBlock - 1) / threadsPerBlock;
     printf("Sample size: %d\nSet GPU Number: %d\n", sample_size, p_param->gpu_index);
 
@@ -53,7 +54,7 @@ int main(int argc, char **argv) {
 
     prepingGPUMemory(sample_size, d_ALGEBRAIC, d_CONSTANTS, d_RATES, d_STATES, d_mec_ALGEBRAIC, d_mec_CONSTANTS,
                      d_mec_RATES, d_mec_STATES, d_p_param, temp_result, cipa_result, d_STATES_RESULT, d_ic50, ic50,
-                     d_conc, conc, p_param);
+                     d_conc, conc, d_cvar, cvar, p_param);
 
     tic();
 

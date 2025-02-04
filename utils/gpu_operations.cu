@@ -30,10 +30,9 @@
 void prepingGPUMemory(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANTS, double *&d_RATES, double *&d_STATES,
                       double *&d_mec_ALGEBRAIC, double *&d_mec_CONSTANTS, double *&d_mec_RATES, double *&d_mec_STATES,
                       param_t *&d_p_param, cipa_t *&temp_result, cipa_t *&cipa_result, double *&d_STATES_RESULT, double *&d_ic50, 
-                      
-                      double *ic50, double *&d_conc, double *conc, param_t *p_param) {
+                      double *ic50, double *&d_conc, double *conc, double *&d_cvar, double *cvar, param_t *p_param) {
     printf("preparing GPU memory space \n");
-
+    printf("Concentration data in GPU prep: %f \n", conc[0]);
     // Allocate memory on the device
     cudaMalloc(&d_ALGEBRAIC, Tomek_num_of_algebraic * sample_size * sizeof(double));
     cudaMalloc(&d_CONSTANTS, Tomek_num_of_constants * sample_size * sizeof(double));
@@ -48,15 +47,27 @@ void prepingGPUMemory(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANT
     cudaMalloc(&cipa_result, sample_size * sizeof(cipa_t));
     cudaMalloc(&d_STATES_RESULT, Tomek_num_of_states * sample_size * sizeof(double));
 
-    // Allocate memory for IC50 and concentration data
-    cudaMalloc(&d_ic50, sample_size * 14 * sizeof(double));
+    // Allocate memory for IC50, cvar and concentration data
+    cudaError_t err = cudaMalloc(&d_ic50, sample_size * 14 * sizeof(double));
+    if (err != cudaSuccess) {
+    printf("cudaMalloc d_ic50 failed: %s\n", cudaGetErrorString(err));
+    return;
+    }
+    cudaMalloc(&d_cvar, sample_size * 18 * sizeof(double));
     cudaMalloc(&d_conc, sample_size * sizeof(double));
 
     // Copy data from host to device
     printf("Copying sample files to GPU memory space \n");
     cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_cvar, cvar, sample_size * 18 * sizeof(double), cudaMemcpyHostToDevice);
+    err = cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+        printf("Error in cudaMemcpy for d_conc: %s\n", cudaGetErrorString(err));
+        return;
+    }
     cudaMemcpy(d_p_param, p_param, sizeof(param_t), cudaMemcpyHostToDevice);
+    printf("Host values - First elements: ic50[0]=%f, conc[0]=%f\n", ic50[0], conc[0]);
+    // printf("Concentration data after GPU prep: %f \n", d_conc[0]);
 }
 
 void prepingGPUMemoryPostpro(int sample_size, double *&d_ALGEBRAIC, double *&d_CONSTANTS, double *&d_RATES, double *&d_STATES, double *d_STATES_cache,
