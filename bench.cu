@@ -95,24 +95,20 @@ int main(int argc, char **argv) {
 
     // Allocate memory for IC50, cvar and concentration data
     cudaError_t err = cudaMalloc(&d_ic50, sample_size * 14 * sizeof(double));
-    if (err != cudaSuccess) {
-    printf("cudaMalloc d_ic50 failed: %s\n", cudaGetErrorString(err));
-    return;
-    }
+    printf("after ic50 malloc: %s\n", cudaGetErrorString(err));
     cudaMalloc(&d_cvar, sample_size * 18 * sizeof(double));
     cudaMalloc(&d_conc, sample_size * sizeof(double));
 
     // Copy data from host to device
     printf("Copying sample files to GPU memory space \n");
+
     // cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_cvar, cvar, sample_size * 18 * sizeof(double), cudaMemcpyHostToDevice);
-    CUDA_CHECK(cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice));
+    cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice);
     // CUDA_CHECK(cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice));
     err = cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
-        printf("Error in cudaMemcpy for d_conc: %s\n", cudaGetErrorString(err));
-        return;
-    }
+    printf("after conc memcpy: %s\n", cudaGetErrorString(err));
+
     cudaMemcpy(d_p_param, p_param, sizeof(param_t), cudaMemcpyHostToDevice);
     printf("Host values - First elements: ic50[0]=%f, conc[0]=%f\n", ic50[0], conc[0]);
 
@@ -379,11 +375,18 @@ int main(int argc, char **argv) {
     printf("\n   Configuration: \n\n\tblock\t||\tthread\n---------------------------------------\n  \t%d\t||\t%d\n\n\n",
            blocksPerGrid, threadsPerBlock);
 
+    cudaPointerAttributes attributes;
+    cudaError_t po = cudaPointerGetAttributes(&attributes, d_ic50);
+    printf("d_ic50 pointer: %s\n", cudaGetErrorString(po));
+
     kernel_DrugSimulation<<<blocksPerGrid, threadsPerBlock>>>(
         d_ic50, d_cvar, d_conc, d_CONSTANTS, d_STATES, d_STATES_init, d_RATES, d_ALGEBRAIC, d_STATES_RESULT,
         d_mec_CONSTANTS, d_mec_STATES, d_mec_RATES, d_mec_ALGEBRAIC, time, states, dt, cai_result, ina, inal, ical, ito,
         ikr, iks, ik1, sample_size, temp_result, cipa_result, d_p_param);
     cudaDeviceSynchronize();
+    // cudaError_t err = cudaGetLastError();
+    err = cudaGetLastError();
+    printf("CUDA error: %s\n", cudaGetErrorString(err));
 
     double *h_states = (double *)malloc(Tomek_num_of_states * sample_size * sizeof(double));
     cipa_t *h_cipa_result = (cipa_t *)malloc(sample_size * sizeof(cipa_t));

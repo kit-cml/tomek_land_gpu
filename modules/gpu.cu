@@ -35,8 +35,10 @@ __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_
                                       cipa_t *temp_result, cipa_t *cipa_result, param_t *p_param) {
     unsigned short thread_id = blockIdx.x * blockDim.x + threadIdx.x; 
     if(thread_id < sample_size) {
-      printf("thread_id: %d\n",thread_id);
-      printf("IC50: %lf\n",d_ic50[thread_id]);
+      printf("Thread %d: Attempting to access d_ic50[%d]\n", thread_id, thread_id);
+      printf("d_ic50 address: %p\n", (void*)d_ic50);
+      printf("Accessing element at offset: %llu bytes\n", (unsigned long long)(thread_id * sizeof(double)));
+      printf("IC50: %lf\n",d_ic50[thread_id]); 
       printf("Concentration: %lf\n",d_conc[thread_id]);    
     }
     
