@@ -27,6 +27,15 @@
     } \
 } while(0)
 
+__host__ void checkDevicePointer(const void* ptr, const char* name) {
+    cudaPointerAttributes attributes;
+    cudaError_t err = cudaPointerGetAttributes(&attributes, ptr);
+    if (err != cudaSuccess || attributes.type != cudaMemoryTypeDevice) {
+        printf("Invalid device pointer for %s: %s\n", name, cudaGetErrorString(err));
+        exit(1);
+    }
+}
+
 /**
  * @brief Main function for running the drug simulation
  *
@@ -94,10 +103,15 @@ int main(int argc, char **argv) {
     cudaMalloc(&d_STATES_RESULT, Tomek_num_of_states * sample_size * sizeof(double));
 
     // Allocate memory for IC50, cvar and concentration data
-    cudaError_t err = cudaMalloc(&d_ic50, sample_size * 14 * sizeof(double));
-    printf("after ic50 malloc: %s\n", cudaGetErrorString(err));
+    cudaError_t err1 = cudaMalloc(&d_ic50, sample_size * 14 * sizeof(double));
+    printf("after ic50 malloc: %s\n", cudaGetErrorString(err1));
     cudaMalloc(&d_cvar, sample_size * 18 * sizeof(double));
-    cudaMalloc(&d_conc, sample_size * sizeof(double));
+    cudaError_t err2 = cudaMalloc(&d_conc, sample_size * sizeof(double));
+    printf("after conc malloc: %s\n", cudaGetErrorString(err2));
+
+    checkDevicePointer(d_ic50, "d_ic50");
+    checkDevicePointer(d_conc, "d_conc");
+    checkDevicePointer(d_cvar, "d_cvar");
 
     // Copy data from host to device
     printf("Copying sample files to GPU memory space \n");
@@ -106,11 +120,19 @@ int main(int argc, char **argv) {
     cudaMemcpy(d_cvar, cvar, sample_size * 18 * sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_ic50, ic50, sample_size * 14 * sizeof(double), cudaMemcpyHostToDevice);
     // CUDA_CHECK(cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice));
-    err = cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy(d_conc, conc, sample_size * sizeof(double), cudaMemcpyHostToDevice);
     printf("after conc memcpy: %s\n", cudaGetErrorString(err));
 
     cudaMemcpy(d_p_param, p_param, sizeof(param_t), cudaMemcpyHostToDevice);
     printf("Host values - First elements: ic50[0]=%f, conc[0]=%f\n", ic50[0], conc[0]);
+
+    cudaDeviceSynchronize();
+    err = cudaGetLastError();
+    printf("CUDA comments: %s\n", cudaGetErrorString(err));
+
+    checkDevicePointer(d_ic50, "d_ic50");
+    checkDevicePointer(d_conc, "d_conc");
+    checkDevicePointer(d_cvar, "d_cvar");
 
 
     tic();
@@ -386,7 +408,7 @@ int main(int argc, char **argv) {
     cudaDeviceSynchronize();
     // cudaError_t err = cudaGetLastError();
     err = cudaGetLastError();
-    printf("CUDA error: %s\n", cudaGetErrorString(err));
+    printf("CUDA comments: %s\n", cudaGetErrorString(err));
 
     double *h_states = (double *)malloc(Tomek_num_of_states * sample_size * sizeof(double));
     cipa_t *h_cipa_result = (cipa_t *)malloc(sample_size * sizeof(cipa_t));
