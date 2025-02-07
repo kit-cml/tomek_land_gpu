@@ -50,13 +50,14 @@ CXXLINK := nvlink
 # - -Ofast may sacrifice precision for speed (e.g., floating-point math).
 
 # CXXFLAGS += -Wall -O3
+CXXFLAGS += -std=c++14
 
 # LDFLAGS is used for linker (-g enables debug symbols)
 # LDFLAGS  += -g -L/usr/local/cuda/lib64
 # FOR 3xxx series GPU:
-# LDFLAGS  += -g -L/usr/local/cuda/lib64 -arch=sm_86 -rdc=true
+LDFLAGS  += -g -L/usr/local/cuda/lib64 -arch=sm_86 -rdc=true
 # FOR 4xxx series GPU:
-LDFLAGS  += -g -L/usr/local/cuda/lib64 -arch=sm_89 -rdc=true
+# LDFLAGS  += -g -L/usr/local/cuda/lib64 -arch=sm_89 -rdc=true
 
 # List the project' sources to compile or let the Makefile recognize
 # them for you using 'wildcard' function.
@@ -82,7 +83,7 @@ all : $(PROGNAME)
 
 # Declare that the final program depends on all objects and the Makfile
 $(PROGNAME) : $(OBJECTS) Makefile
-	$(CXX) -o bin/$@ $(OBJECTS) $(LDFLAGS)
+	$(CXX) -o bin/$@ $(CXXFLAGS) $(OBJECTS) $(LDFLAGS)
 
 # Now the choice of using implicit rules or not (my choice)...
 #
@@ -94,7 +95,7 @@ $(PROGNAME) : $(OBJECTS) Makefile
 #
 # Choice 2: don't use implicit rules and specify our will
 %.o: %.cpp $(HEADERS) Makefile
-	$(CXX) -x cu $(CXXFLAGS) $(CPPFLAGS) -dc -arch=sm_89 $(OUTPUT_OPTION) $<
+	$(CXX) -x cu $(CXXFLAGS) $(CPPFLAGS) -dc -arch=sm_86 $(OUTPUT_OPTION) $<
 # -dc -rdc=true 
 
 # Simple clean-up target
