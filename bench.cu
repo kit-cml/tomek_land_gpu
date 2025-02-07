@@ -4,7 +4,7 @@
  */
 
 #include <sys/stat.h>
-#include <regex>
+// #include <regex>
 #include <string>
 
 #include <cuda.h>
