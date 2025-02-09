@@ -35,14 +35,14 @@ __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_
                                       cipa_t *temp_result, cipa_t *cipa_result, param_t *p_param) {
     unsigned short thread_id = blockIdx.x * blockDim.x + threadIdx.x; 
     if(thread_id < sample_size) {
-      printf("Thread %d: Attempting to access d_ic50[%d]\n", thread_id, thread_id);
-      printf("d_ic50 address: %p\n", (void*)d_ic50);
-      printf("Accessing element at offset: %llu bytes\n", (unsigned long long)(thread_id * sizeof(double)));
-      printf("IC50: %lf\n",d_ic50[thread_id]); 
-      printf("Concentration: %lf\n",d_conc[thread_id]);    
+      // printf("Thread %d: Attempting to access d_ic50[%d]\n", thread_id, thread_id);
+      // printf("d_ic50 address: %p\n", (void*)d_ic50);
+      // printf("Accessing element at offset: %llu bytes\n", (unsigned long long)(thread_id * sizeof(double)));
+      // printf("IC50: %lf\n",d_ic50[thread_id]); 
+      // printf("Concentration: %lf\n",d_conc[thread_id]);    
     }
     
-    printf("Calculating %d from %d\n",thread_id, sample_size);
+    // printf("Calculating %d from %d\n",thread_id, sample_size);
     if (thread_id >= sample_size) 
     {
       printf("Returning due to %d is larger or equal to %d\n",thread_id, sample_size);
@@ -110,7 +110,7 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
                                       unsigned int sample_size, cipa_t *temp_result, cipa_t *cipa_result,
                                       param_t *p_param) {
     unsigned int input_counter = 0;
- printf("Calculating %d\n",sample_id);
+//  printf("Calculating %d\n",sample_id);
     // Initialize temporary result and CiPA result structures
     auto init_result = [](cipa_t &result, const double *STATES, unsigned int sample_id) {
         result.qnet = 0.;
@@ -156,14 +156,17 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
     double y[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
     double epsilon = 10E-14;
     double vm_repol30, vm_repol90;
-
-    printf("core: %d pace count: %d t: %lf, steepest: %d, dvmdt_repol: %lf, conc: %lf\n", sample_id,
-           pace_count, tcurr[sample_id], pace_steepest, cipa_result[sample_id].dvmdt_repol, conc);
-
+    
+    if (sample_id == 0){
+    printf("dodrugsim: %d pace count: %d t: %lf, steepest: %d, dvmdt_repol: %lf, conc: %lf\n", sample_id, pace_count, tcurr[sample_id], pace_steepest, cipa_result[sample_id].dvmdt_repol, conc);
+    }
     // Initialize constants and apply drug effects
-    initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, p_param->is_dutta, p_param->is_cvar, bcl, sample_id);
+    initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, p_param->is_cvar, bcl, epsilon, sample_id);
     // applyDrugEffect(d_CONSTANTS, conc, d_ic50, sample_id);
     land_initConsts(false, false, y, d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC, sample_id);
+    if (sample_id == 0){
+      printf("init consts for both: %d pace count: %d t: %lf, steepest: %d, dvmdt_repol: %lf, conc: %lf\n", sample_id, pace_count, tcurr[sample_id], pace_steepest, cipa_result[sample_id].dvmdt_repol, conc);
+      }
 
     d_CONSTANTS[BCL + (sample_id * Tomek_num_of_constants)] = bcl;
 
@@ -205,16 +208,13 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
             input_counter = 0;
             cipa_datapoint = 0;
             is_eligible_AP = false;
-
-            // Debug output
-            if (sample_id == 0) {
-                printf("core: %d pace count: %d t: %lf, steepest: %d, dvmdt_repol: %lf, conc: %lf\n", sample_id,
-                       pace_count, tcurr[sample_id], pace_steepest, cipa_result[sample_id].dvmdt_repol, conc);
-            }
         }
 
         // Solve ODEs analytically, checked for new algorithm
         solveAnalytical(d_CONSTANTS, d_STATES, d_ALGEBRAIC, d_RATES, dt[sample_id], sample_id);
+        if (sample_id == 0) {
+          printf("tomek solve analytical: %d pace count: %d t: %lf, steepest: %d, dvmdt_repol: %lf, conc: %lf\n", sample_id, pace_count, tcurr[sample_id], pace_steepest, cipa_result[sample_id].dvmdt_repol, conc);
+      }
         land_solveEuler(dt[sample_id], tcurr[sample_id], d_STATES[cai + (sample_id * Tomek_num_of_states)] * 1000., d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, sample_id);
 
         // Perform checks in the last few pacing cycles

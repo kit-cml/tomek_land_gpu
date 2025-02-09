@@ -759,10 +759,14 @@ __device__ void ___applyDrugEffect(double *CONSTANTS, double conc, double *hill,
 __device__ void initConsts(double *CONSTANTS, double *STATES, double type, double conc, double *ic50, double *cvar,  bool is_cvar, double bcl, double epsilon, int sample_id)
     {
 	___initConsts(CONSTANTS, STATES, type, bcl, sample_id);
+    if (sample_id == 0){
 	printf("Celltype: %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + celltype]);
-	#ifndef COMPONENT_PATCH
+    }
+	// #ifndef COMPONENT_PATCH
+    if (sample_id == 0){
 	printf("Control %lf %lf %lf %lf %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa], CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs], CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr]);
-	#endif
+	// #endif
+    }
 	___applyDrugEffect(CONSTANTS, conc, ic50, sample_id);
     if (is_cvar == 1){ 
     ___applyCvar(CONSTANTS, cvar, sample_id); //implemented
@@ -772,9 +776,11 @@ __device__ void initConsts(double *CONSTANTS, double *STATES, double type, doubl
       CONSTANTS[(Tomek_num_of_constants * 0) + PCa_b], CONSTANTS[(Tomek_num_of_constants * 0) + GK1_b], CONSTANTS[(Tomek_num_of_constants * 0) + GKs_b], CONSTANTS[(Tomek_num_of_constants * 0) + GNa], CONSTANTS[(Tomek_num_of_constants * 0) + GNaL_b], CONSTANTS[(Tomek_num_of_constants * 0) + Gto_b], CONSTANTS[(Tomek_num_of_constants * 0) + GKr_b]);
         }
     }
-	#ifndef COMPONENT_PATCH
+	// #ifndef COMPONENT_PATCH
+    if (sample_id == 0){
 	printf("After drug %lf %lf %lf %lf %lf\n", CONSTANTS[(sample_id * Tomek_num_of_constants) + PCa], CONSTANTS[(sample_id * Tomek_num_of_constants) + GK1], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKs], CONSTANTS[(sample_id * Tomek_num_of_constants) + GNaL], CONSTANTS[(sample_id * Tomek_num_of_constants) + GKr]);
-	#endif
+	// #endif
+    }
     }
 
 __device__ void computeRates(double TIME, double* CONSTANTS, double* RATES, double* STATES, double* ALGEBRAIC, int sample_id,  double land_trpn)

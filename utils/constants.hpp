@@ -49,6 +49,6 @@ const int CURRENT_SCALING = 1000;
 /**
  * @brief Number of threads per block for GPU computations.
  */
-const int threadsPerBlock = 32;
+const int threadsPerBlock = 16;
 
 #endif  // CONSTANTS_HPP
