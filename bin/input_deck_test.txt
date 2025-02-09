@@ -1,8 +1,8 @@
 Basic_Cycle_Length = 1000.0
-Number_of_Pacing = 1000
+Number_of_Pacing = 5
 Simulation_Mode = 0
-Celltype = 1
+Celltype = 0
 Is_Dutta = 1
 Use_Conductance_Variability = 0
-Pace_Find_Steepest = 250
+Pace_Find_Steepest = 3
 GPU_Index = 0
