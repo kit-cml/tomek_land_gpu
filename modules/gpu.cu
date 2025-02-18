@@ -112,6 +112,7 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
     unsigned int input_counter = 0;
 //  printf("Calculating %d\n",sample_id);
     // Initialize temporary result and CiPA result structures
+    // warning: this might cause race condition
     auto init_result = [](cipa_t &result, const double *STATES, unsigned int sample_id) {
         result.qnet = 0.;
         result.inal_auc = 0.;
@@ -137,8 +138,10 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
 
     // Simulation variables
     bool is_peak = false;
+    
     tcurr[sample_id] = 0.0;
     dt[sample_id] = p_param->dt;
+
     double max_time_step = 0.1, time_point = 25.0;
     double dt_set;
     int cipa_datapoint = 0;
@@ -180,8 +183,8 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
         
         // Set time step (adaptive dt)
         //NOTE: Disabled in Margara
-        dt_set = set_time_step(tcurr[sample_id], time_point, max_time_step, d_CONSTANTS, d_RATES, sample_id);
-        // dt_set = 0.005;
+        // dt_set = set_time_step(tcurr[sample_id], time_point, max_time_step, d_CONSTANTS, d_RATES, sample_id);
+        dt_set = 0.001;
         // Check if within the same cycle
         if (floor((tcurr[sample_id] + dt_set) / bcl) == floor(tcurr[sample_id] / bcl)) {
             dt[sample_id] = dt_set;
