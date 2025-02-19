@@ -55,6 +55,9 @@ __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_
 
    
      // Run the drug simulation for each sample
+    if (thread_id == 0) {
+      printf("Running init drug simulation\n");
+    }
     kernel_DoDrugSim_init(d_ic50, d_cvar, d_conc[thread_id], d_CONSTANTS, d_STATES, d_RATES, d_ALGEBRAIC, d_STATES_RESULT,
                           d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC,
                           time_for_each_sample, dt_for_each_sample, thread_id, sample_size, temp_result, cipa_result,
@@ -110,7 +113,7 @@ __device__ void kernel_DoDrugSim_init(double *d_ic50, double *d_cvar, double d_c
                                       unsigned int sample_size, cipa_t *temp_result, cipa_t *cipa_result,
                                       param_t *p_param) {
     unsigned int input_counter = 0;
-//  printf("Calculating %d\n",sample_id);
+    printf("Calculating %d\n",sample_id);
     // Initialize temporary result and CiPA result structures
     // warning: this might cause race condition
     auto init_result = [](cipa_t &result, const double *STATES, unsigned int sample_id) {
